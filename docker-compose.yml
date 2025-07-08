@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mail-subscription-app:
+    container_name: mail-subscription-app
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mail-subscription-db
+      - mail-subscription-rabbitmq
+    networks:
+        - nginx-network
+
+  mail-subscription-db:
+    container_name: mail-subscription-db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: mailSubscriptionDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5455:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - nginx-network
+
+
+  mail-subscription-rabbitmq:
+    container_name: mail-subscription-rabbitmq
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitMQ
+      RABBITMQ_DEFAULT_PASS: rabbitMQ
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - nginx-network
+
+volumes:
+  rabbitmq_data:
+
+
+networks:
+    nginx-network:
+      external: true
